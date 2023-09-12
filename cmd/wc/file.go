@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -19,10 +20,25 @@ func handleWCCmd(cmd *cobra.Command, args []string) {
 	// permissions around opening files
 	// what is the output if you give multiple files?
 
+  fileName := args[0]
+  f, err := openFile(fileName)
+  if err != nil {
+    fmt.Printf("error opening file %w", err)
+  }
+
+
+  defer f.Close()
+
+  lines, err := handleFileLines(f)
+  if err != nil {
+    fmt.Printf("error counting lines %w", err)
+  }
+
 	// output
 	// treats files independently err if DNE
 	// also return total line count
 
+  fmt.Println(lines)
 }
 
 // this may return something else based on flag
@@ -31,7 +47,20 @@ func handleWCCmd(cmd *cobra.Command, args []string) {
 // w -> # of words
 // m -> # of chars
 func handleFileLines(r io.Reader) (int, error) {
-	return 0, nil
+  // check if flags were changed
+  // call the required function
+  // flag := cmd.Flags().Lookup("line count").Changed
+  // call CountLines or CountWords depending on which flag is changed
+  var lines int
+  scanner := bufio.NewScanner(r)
+
+  for scanner.Scan() {
+    if len(scanner.Text()) > 0 {
+      lines++
+    }
+  }
+
+	return lines, nil
 }
 
 func openFile(fileName string) (*os.File, error) {
